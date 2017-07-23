@@ -29,7 +29,7 @@ class ViewController: UIViewController {
     
     button.isEnabled = false
     
-    label.numberOfLines = 0;
+    label.numberOfLines = 0
     
     
   }
@@ -99,6 +99,9 @@ class ViewController: UIViewController {
       if let result = result {
         self.label.text = result.bestTranscription.formattedString
         isFinal = result.isFinal
+        
+        // analyzeTextにbestTranscriptionを渡す
+        self.analyzeText(text: result.bestTranscription.formattedString)
       }
       
       // エラーがある、もしくは最後の認識結果だった場合の処理
@@ -150,6 +153,23 @@ class ViewController: UIViewController {
       button.setTitle("音声認識を中止", for: [])
     }
   }
+  
+  func analyzeText(text: String) {
+    // "en" = 英語
+    // "ja" = 日本語
+    let tagger = NSLinguisticTagger(tagSchemes: NSLinguisticTagger.availableTagSchemes(forLanguage: "ja"), options: 0)
+    
+    tagger.string = text
+    
+    // NSLinguisticTagSchemeTokenType
+    // Word, Punctuation, Whitespace, Otherで判別が可能。今回はoptionsで.omitWhitespaceを設定して空白を無視するようにしています。
+    tagger.enumerateTags(in: NSRange(location: 0, length: text.characters.count), scheme: NSLinguisticTagSchemeTokenType, options: [.omitWhitespace]) { tag, tokenRange, sentenceRange, stop in
+      
+      let subString = (text as NSString).substring(with: tokenRange)
+      print("\(subString) : \(tag)")
+    }
+  }
+
   
 
 }
